@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YBMusic.AppShellMobile"
+             Title="AppShellMobile"
+             xmlns:local="clr-namespace:YBMusic.Views.Mobile"
+            Shell.FlyoutBehavior="Disabled"
+            >
+    <TabBar>
+        <ShellContent
+        Title="Songs" 
+        Icon="music.png"
+        ContentTemplate="{DataTemplate local:HomePageM}"
+        Route="HomePageM"
+        />
+        <ShellContent Route="NowPlayingPageM" IsVisible="False"
+                      ContentTemplate="{DataTemplate local:NowPlayingPageM}"
+                      />
+        <ShellContent
+            Title="PlayLists"
+            Icon="playlist"
+            ContentTemplate="{DataTemplate local:PlayListPageM}"
+            Route="PlaylistsPageM"
+            />
+        <ShellContent
+            Title="Settings"
+            Icon="settings"
+            ContentTemplate="{DataTemplate local:AppSettingsListM}"
+            Route="AppSettingsListM"
+            />
+    </TabBar>
+
+    <ShellContent
+        Title="Songs" 
+        Icon="music.png"
+        ContentTemplate="{DataTemplate local:HomePageM}"
+        Route="HomePageM"
+        />
+</Shell>

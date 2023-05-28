@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YBMusic.Views.Mobile.NowPlayingPageM"
+             Title="{Binding SelectedSong.Title}"             
+             xmlns:local="clr-namespace:YBMusic.Views.Mobile"
+             xmlns:vm="clr-namespace:YBMusic.ViewModels"
+             x:DataType="vm:MusicServiceVM"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:converters="clr-namespace:YB.Utilities.TypeConverters;assembly=YB.Utilities">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False"/>
+    </Shell.BackButtonBehavior>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
+            <converters:DurationConverterFromMsToTimeSpan x:Key="DurationConverter"/>
+            <converters:CurrentTimeConverterFromSecToTimeSpan x:Key="CurrentTimeConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <toolkit:DockLayout VerticalOptions="End" x:Name="PageContent">
+        <!--Section for song image and lyrics-->
+        <Grid VerticalOptions="End">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <ImageButton Grid.Column="0"
+                toolkit:DockLayout.DockPosition="Top" Source="play" HeightRequest="250" WidthRequest="200" Opacity="0.4"/>
+            <Label Grid.Column="0" Text="{Binding HighlightedLyrics.Text}" x:Name="LyricLabel"
+                   WidthRequest="250" HorizontalOptions="Center" HorizontalTextAlignment="Center"  VerticalOptions="Center" />
+        </Grid>
+
+        <!--Section for song progress-->
+        <Grid toolkit:DockLayout.DockPosition="Top" Margin="8,25,8,40" VerticalOptions="End">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Text="{Binding SongCurrentPosition, Converter={StaticResource CurrentTimeConverter}}"
+                   WidthRequest="40" Grid.Column="0" Margin="5" />
+            <Slider Value="{Binding SongProgress}" MinimumTrackColor="DarkSlateBlue"
+                    DragCompletedCommand="{Binding SeekSongSliderValueChangedCommand}"
+                    Grid.Column="1" HeightRequest="30" VerticalOptions="Start"/>
+
+            <Label Text="{Binding SongDuration , StringFormat='{0:mm\\:ss}'}" WidthRequest="40" Grid.Column="2" Margin="5"/>
+        </Grid>
+
+        <!--Section for Song Artist and title-->       
+        <VerticalStackLayout HorizontalOptions="Center" Margin="0,20" VerticalOptions="End" Spacing="5"
+                             toolkit:DockLayout.DockPosition="Top">
+            <Label Text="{Binding SelectedSong.Title}" FontAttributes="Bold" FontSize="19"/>
+            <Label Text="{Binding SelectedSong.Artist.Name}" Margin="20,0" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!--Section for song controls-->
+        <Grid toolkit:DockLayout.DockPosition="Top" Margin="0,40"
+              VerticalOptions="End">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <ImageButton Source="repeat" Grid.Column="0" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+            <ImageButton Source="skip_to_start" Grid.Column="1" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+
+            <Border Grid.Column="2"  HorizontalOptions="FillAndExpand" WidthRequest="60" BackgroundColor="#1E1E1E" 
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 30">
+
+                <HorizontalStackLayout HorizontalOptions="Center">
+                    <ImageButton Source="play" WidthRequest="20" Command="{Binding PlayReSumeSongCommand}"
+                                 IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
+                                 HorizontalOptions="FillAndExpand"/>
+
+                    <ImageButton Source="pause" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
+                                 Command="{Binding PauseSongCommand}"
+                                 WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+                </HorizontalStackLayout>
+                
+            </Border>
+            <ImageButton Source="end" Grid.Column="3" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+            <ImageButton Source="shuffle" Grid.Column="4" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+        </Grid>
+
+        <!--Section for song quality-->
+        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="End"
+                               toolkit:DockLayout.DockPosition="Top">
+            <Label Text="{Binding SelectedSong.FileFormat}"/>
+        </HorizontalStackLayout>
+
+        <!--Section for song volume-->
+        <Grid toolkit:DockLayout.DockPosition="Top" HeightRequest="40" 
+              Margin="8,0"
+              VerticalOptions="End">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <ImageButton Source="low_volume" WidthRequest="30" Grid.Column="0" Margin="5"
+                         Command="{Binding UpdateVolumeCommand}">
+                <ImageButton.CommandParameter>
+                    <x:Int32>0</x:Int32>
+                </ImageButton.CommandParameter>
+            </ImageButton>
+            
+            <Slider Maximum="100" Minimum="0" Value="50" Grid.Column="1" HeightRequest="10" VerticalOptions="Center"/>
+
+            <ImageButton Source="high_volume" WidthRequest="30" Grid.Column="2" Margin="5"
+                         Command="{Binding UpdateVolumeCommand}">
+                <ImageButton.CommandParameter>
+                    <x:Int32>1</x:Int32>
+                </ImageButton.CommandParameter>
+            </ImageButton>
+        </Grid>
+
+        <!--Section for Page options-->
+        <Grid HeightRequest="40" VerticalOptions="End">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ImageButton Source="expand_arrow" WidthRequest="30" Margin="10,0"
+                         HeightRequest="20" Grid.Column="0" HorizontalOptions="Start" />
+
+            <HorizontalStackLayout Grid.Column="1" HorizontalOptions="End" Spacing="10">
+
+                <ImageButton Source="lullaby" WidthRequest="20" HeightRequest="15" />
+                <ImageButton Source="heart" WidthRequest="20" HeightRequest="15" />
+                <ImageButton Source="love_circled" WidthRequest="20" HeightRequest="15" />
+
+            </HorizontalStackLayout>
+        </Grid>
+
+    </toolkit:DockLayout>
+</ContentPage>

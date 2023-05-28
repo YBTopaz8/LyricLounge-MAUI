@@ -1,0 +1,130 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net7.0-android;</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.22621.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
+		<OutputType>Exe</OutputType>
+		<RootNamespace>YBMusic</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<!-- Display name -->
+		<ApplicationTitle>YBMusic</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.companyname.ybmusic</ApplicationId>
+		<ApplicationIdGuid>b1d2f856-c298-46e1-bbf9-3e12a561e2fb</ApplicationIdGuid>
+
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">30.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.22621.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.22621.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\Images\add_btn_48.svg" />
+	  <None Remove="Resources\Images\end.svg" />
+	  <None Remove="Resources\Images\expand_arrow.svg" />
+	  <None Remove="Resources\Images\heart.svg" />
+	  <None Remove="Resources\Images\high_volume.svg" />
+	  <None Remove="Resources\Images\love_circled.svg" />
+	  <None Remove="Resources\Images\low_volume.svg" />
+	  <None Remove="Resources\Images\lullaby.svg" />
+	  <None Remove="Resources\Images\menu_vertical.svg" />
+	  <None Remove="Resources\Images\micro.svg" />
+	  <None Remove="Resources\Images\music.svg" />
+	  <None Remove="Resources\Images\nothing_found.svg" />
+	  <None Remove="Resources\Images\pause.svg" />
+	  <None Remove="Resources\Images\play.svg" />
+	  <None Remove="Resources\Images\playlist.svg" />
+	  <None Remove="Resources\Images\repeat.svg" />
+	  <None Remove="Resources\Images\repeat_one.svg" />
+	  <None Remove="Resources\Images\search.svg" />
+	  <None Remove="Resources\Images\settings.svg" />
+	  <None Remove="Resources\Images\shuffle.svg" />
+	  <None Remove="Resources\Images\skip_to_start.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Maui" Version="5.1.0" />
+		<PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="1.0.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+		<PackageReference Include="HorusStudio.Maui.Skeleton" Version="2.0.0" />
+		<PackageReference Include="LiteDB.Async" Version="0.1.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+		<PackageReference Include="Plugin.ContextMenuContainer" Version="1.0.3" />
+		<PackageReference Include="Plugin.Maui.Audio" Version="1.0.0" />
+		<PackageReference Include="Plugin.Maui.ExpansionPanel" Version="1.0.3" />
+		<PackageReference Include="System.Reactive" Version="6.0.0" />
+		<PackageReference Include="UraniumUI" Version="2.4.7" />
+		<PackageReference Include="UraniumUI.Material" Version="2.4.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\YB.DataAccess\YB.DataAccess.csproj" />
+	  <ProjectReference Include="..\YB.Models\YB.Models.csproj" />
+	  <ProjectReference Include="..\YB.Utilities\YB.Utilities.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Views\Mobile\HomePageM.xaml.cs">
+	    <DependentUpon>HomePageM.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Mobile\PlaylistPageM.xaml.cs">
+	    <DependentUpon>PlaylistPageM.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="AppShellMobile.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Desktop\HomePageD.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Mobile\AppSettingsListM.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Mobile\HomePageM.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Mobile\NowPlayingPageM.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Mobile\PlaylistPageM.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+</Project>
