@@ -22,7 +22,7 @@ public class SongsManager : ISongsManager
 
     static IDataAccessRepo repo;
 
-    static ISongsManager? currentImplementation;
+    static ISongsManager currentImplementation;
     public static ISongsManager Current => currentImplementation ??= new SongsManager(repo);
     public SongsManager(IDataAccessRepo dataAccess)
     {
@@ -36,13 +36,13 @@ public class SongsManager : ISongsManager
             ShouldDeleteIfMigrationNeeded = true, // never use in prod
             SchemaVersion = 1,
         };
-        db =  Realm.GetInstance(config);
+        db = Realm.GetInstance(config);
     }
 
     public List<SongModel> GetSongs()
     {
         OpenDB();
-        var ss= db.All<SongModel>().ToList();
+        var ss = db.All<SongModel>().ToList();
         return ss;
     }
     public Task<bool> AddListOfSongsAsync(List<SongModel> song)
@@ -69,7 +69,7 @@ public class SongsManager : ISongsManager
         catch (Exception ex)
         {
             //write the exception message in debug 
-            Debug.WriteLine("Error in adding song to the database " +ex.Message);
+            Debug.WriteLine("Error in adding song to the database " + ex.Message);
             return false;
         }
     }

@@ -13,7 +13,7 @@ public class StatisticsModel : RealmObject
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public StringPair SongPlays { get; set; }
     public StringPair ArtistPlays { get; set; }
-    public StringPair GenrePlays { get; set;}
+    public StringPair GenrePlays { get; set; }
     public StringPair SongsSkips { get; set; }
 
     //Remember to update the statistics each time a song is played or skipped,

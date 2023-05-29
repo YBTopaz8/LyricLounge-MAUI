@@ -9,11 +9,10 @@ namespace YB.DataAccess.Platforms;
 
 public class AppSettingsManager : IAppSettingsManager
 {
-    public void DropCollectionAsync()
+    public void DropCollection()
     {
         throw new NotImplementedException();
     }
-
     public void ScanSongs()
     {
         throw new NotImplementedException();

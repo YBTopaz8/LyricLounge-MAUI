@@ -12,29 +12,32 @@ public class AppSettingsManager : IAppSettingsManager
 {
     IDataAccessRepo repo;
     ISongsManager songManager;
+    IPlaylistManager playlistManager;
+
     bool IsFirstRun;
 
-    public AppSettingsManager(IDataAccessRepo dataAccessRepo, ISongsManager songsManager)
+    public AppSettingsManager(IDataAccessRepo dataAccessRepo, ISongsManager songsManager, IPlaylistManager plManager)
     {
         repo = dataAccessRepo;
         songManager = songsManager;
+        playlistManager = plManager;
     }
 
-    public void DropCollectionAsync()
+    public void DropCollection()
     {
-         songManager.DropCollection();
+        songManager.DropCollection();
     }
 
     public void ScanSongs()
     {
-        MusicScanner musicScanner = new (songManager);
-        musicScanner.ScanFolderAsync();
+        MusicScanner musicScanner = new(songManager, playlistManager);
+        musicScanner.ScanFolder();
     }
 
-    public void ScanSongs (List<string> PathsToFolders = null)
+    public void ScanSongs(List<string> PathsToFolders = null)
     {
-        MusicScanner musicScanner = new(songManager);
-        musicScanner.ScanFolderAsync(PathsToFolders);
+        MusicScanner musicScanner = new(songManager, playlistManager);
+        musicScanner.ScanFolder(PathsToFolders);
     }
 }
 //TODO write a method to check if the app is running for the first time
@@ -42,33 +45,47 @@ public class AppSettingsManager : IAppSettingsManager
 class MusicScanner
 {
     ISongsManager songManager;
-
+    IPlaylistManager playlistManager;
     const string MUSIC_FOLDER_PATH = "/storage/emulated/0/Music/";
     private readonly List<SongModel> _songs;
-    public MusicScanner(ISongsManager songsRepo)
+
+    //constructor
+    public MusicScanner(ISongsManager songsRepo, IPlaylistManager plManager)
     {
         songManager = songsRepo;
         _songs = new List<SongModel>();
+        playlistManager = plManager;
     }
 
-    public void ScanFolderAsync( List<string> ListofFolders = null )
+    public void ScanFolder(List<string> ListofFolders = null)
     {
         if (ListofFolders is null)
         {
-             ScanDirectory(MUSIC_FOLDER_PATH);
+            ScanDirectory(MUSIC_FOLDER_PATH);
         }
         else
         {
             foreach (string folder in ListofFolders)
             {
-                 ScanDirectory(folder);
+                ScanDirectory(folder);
             }
         }
     }
     void ScanDirectory(string folder)
     {
+        List<SongModel> listOfSongs = new();
         ScanSongsAndFillList(folder);
-        AddSongsToDB();
+        if (AddSongsToDB(out listOfSongs))
+        {
+            PlaylistModel defaultPlaylist = new()
+            {
+                Name = "Default",
+                CreationDate = DateTimeOffset.Now,
+                Id = Guid.NewGuid().ToString(),
+            };
+            listOfSongs.ForEach(song => defaultPlaylist.Songs.Add(song));
+            playlistManager.CreateNewPlaylist(defaultPlaylist);
+        }
     }
 
     private void ScanSongsAndFillList(string folder)
@@ -95,8 +112,6 @@ class MusicScanner
                             ReleaseYear = track.Year,
                             FilePath = track.Path,
                             FileFormat = Path.GetExtension(file).TrimStart('.'),
-
-                            //FileFormat = track,
                         };
 
                         song.BitRate = track.Bitrate;
@@ -124,11 +139,22 @@ class MusicScanner
         }
     }
 
-    private void AddSongsToDB()
+    private bool AddSongsToDB(out List<SongModel> listOfDefaultSongs)
     {
-        for (int i = 0; i < _songs.Count; i++)
+        try
         {
-            songManager.AddSong(_songs[i]);
+            for (int i = 0; i < _songs.Count; i++)
+            {
+                songManager.AddSong(_songs[i]);
+            }
+            listOfDefaultSongs = _songs;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+            listOfDefaultSongs = Enumerable.Empty<SongModel>().ToList();
+            return false;
         }
     }
 }

@@ -32,6 +32,19 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.22621.0|AnyCPU'">
+	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.22621.0|AnyCPU'">
+	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -129,6 +142,24 @@
 
 	<ItemGroup>
 	  <MauiImage Include="Resources\Images\material\playlist_m.svg" />
+	  <MauiImage Include="Resources\Images\material\music_m.svg" />
+	  <MauiImage Include="Resources\Images\material\menu_vertical_m.svg" />
+	  <MauiImage Include="Resources\Images\material\end_m.svg" />
+	  <MauiImage Include="Resources\Images\material\heart_m.svg" />
+	  <MauiImage Include="Resources\Images\material\heartfilled_m.svg" />
+	  <MauiImage Include="Resources\Images\material\placeholder_m.svg" />
+	  <MauiImage Include="Resources\Images\material\lullaby_m.svg" />
+
+	  <MauiImage Include="Resources\Images\material\nothing_found_m.svg" />
+	  <MauiImage Include="Resources\Images\material\pause_button_m.svg" />
+	  <MauiImage Include="Resources\Images\material\play_m.svg" />
+	  <MauiImage Include="Resources\Images\material\playlist_m.svg" />
+	  <MauiImage Include="Resources\Images\material\repeat_m.svg" />
+	  <MauiImage Include="Resources\Images\material\repeat_one_m.svg" />
+	  <MauiImage Include="Resources\Images\material\search_m.svg" />
+	  <MauiImage Include="Resources\Images\material\settings_m.svg" />
+	  <MauiImage Include="Resources\Images\material\shuffle_m.svg" />
+	  <MauiImage Include="Resources\Images\material\skip_to_start_m.svg" />
 	</ItemGroup>
 
 </Project>

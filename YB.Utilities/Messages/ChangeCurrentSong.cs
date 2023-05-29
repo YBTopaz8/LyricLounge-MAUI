@@ -32,5 +32,4 @@ public class ChangingSongInfoModel
     public SongModel SelectedSong { get; set; }
     public IAudioPlayer AudioPlayer { get; set; }
     public List<LyricsModel> Lyrics { get; set; }
-    
 }

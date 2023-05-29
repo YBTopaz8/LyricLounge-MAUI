@@ -3,6 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="YBMusic.Views.Mobile.PlayListPageM"
              xmlns:local="clr-namespace:YBMusic.Views.Mobile"
-             Title="PlaylistListPageM">
-    <Button Text="Click Me" Clicked="Button_Clicked" HeightRequest="20"/>
+             Title="Playlists"
+             xmlns:vm="clr-namespace:YBMusic.ViewModels"
+             xmlns:models="clr-namespace:YB.Models;assembly=YB.Models"
+             x:DataType="vm:PlaylistVM"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Name="playlistsPage">
+    <toolkit:DockLayout>
+        <Label toolkit:DockLayout.DockPosition="Top" Margin="8,0"
+               Text="{Binding NumberOfPlaylists}"
+               HorizontalOptions="Center"/>
+        <CollectionView toolkit:DockLayout.DockPosition="Top"
+                        ItemsSource="{Binding Playlists}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:PlaylistModel">
+                    <ScrollView Margin="5,1">
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="Red"
+                                Stroke="Transparent"
+                                Padding="5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.OpenPlaylistPageCommand, Source={x:Reference playlistsPage}}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding Name}"/>
+                            
+                        </Border>
+                    </ScrollView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </toolkit:DockLayout>
 </ContentPage>

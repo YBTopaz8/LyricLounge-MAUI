@@ -66,7 +66,7 @@
                                         CommandParameter="{Binding .}"/>
                                     </HorizontalStackLayout.GestureRecognizers>
                                     <Image WidthRequest="33"
-                                                Source="micro"/>
+                                                Source="placeholder_m"/>
                                     <VerticalStackLayout Margin="0,3,0,0">
                                         <Label Text="{Binding Title}" 
                                                TextColor="White" />
@@ -124,7 +124,7 @@
                     </Label>
                 </HorizontalStackLayout>
 
-                <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                <HorizontalStackLayout Grid.Column="1" Spacing="5" Margin="3,0">
                     <ImageButton Source="skip_to_start_m" 
                                      WidthRequest="25"
                                      HeightRequest="25"/>

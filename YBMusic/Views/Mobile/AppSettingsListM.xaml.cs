@@ -8,15 +8,15 @@ namespace YBMusic.Views.Mobile;
 
 public partial class AppSettingsListM : ContentPage
 {
-	IAppSettingsManager _appSettingsManager;
+    IAppSettingsManager _appSettingsManager;
     FolderPickerResult result;
     WeakReferenceMessenger messenger;
-	public AppSettingsListM(IAppSettingsManager settingsManager, WeakReferenceMessenger wrm)
-	{
-		InitializeComponent();
-		_appSettingsManager = settingsManager;
+    public AppSettingsListM(IAppSettingsManager settingsManager, WeakReferenceMessenger wrm)
+    {
+        InitializeComponent();
+        _appSettingsManager = settingsManager;
         messenger = wrm;
-	}
+    }
 
     private async void Button_Clicked(object sender, EventArgs e)
     {

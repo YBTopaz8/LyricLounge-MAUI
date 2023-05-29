@@ -13,7 +13,7 @@ public class DataAccessRepo : IDataAccessRepo
 
         var config = new RealmConfiguration(path);
 
-        db =  await Realm.GetInstanceAsync(config);
+        db = await Realm.GetInstanceAsync(config);
         return db;
     }
 }

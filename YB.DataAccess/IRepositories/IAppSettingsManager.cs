@@ -8,7 +8,7 @@ namespace YB.DataAccess.IRepositories;
 
 public interface IAppSettingsManager
 {
-    void DropCollectionAsync();
+    void DropCollection();
     void ScanSongs();
     void ScanSongs(List<string> PathsToFolders);
 }

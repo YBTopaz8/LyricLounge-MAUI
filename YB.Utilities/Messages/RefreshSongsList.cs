@@ -12,6 +12,5 @@ public class RefreshSongsList : ValueChangedMessage<bool>
 {
     public RefreshSongsList(bool value) : base(value)
     {
-        
     }
 }

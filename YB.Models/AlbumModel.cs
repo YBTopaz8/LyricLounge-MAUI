@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace YB.Models;
 
-public class AlbumModel :RealmObject
+public class AlbumModel : RealmObject
 {
     [PrimaryKey]
-    public string  Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; }
     public int? ReleaseYear { get; set; }
     //property for number of tracks

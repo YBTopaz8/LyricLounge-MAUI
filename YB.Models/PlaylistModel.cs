@@ -12,7 +12,7 @@ public class PlaylistModel : RealmObject
     [PrimaryKey]
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; }
-    public IList<SongModel> Songs { get;}
+    public IList<SongModel> Songs { get; }
     public DateTimeOffset CreationDate { get; set; }
     public string ImagePath { get; set; }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YB.Models;
 
-public class ArtistModel :RealmObject
+public class ArtistModel : RealmObject
 {
     [PrimaryKey]
     public string Id { get; set; } = Guid.NewGuid().ToString();

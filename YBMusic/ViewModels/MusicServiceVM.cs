@@ -33,14 +33,14 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     [ObservableProperty]
     List<LyricsModel> lyrics;
 
-
     WeakReferenceMessenger messenger;
-    public MusicServiceVM(IAppSettingsManager settingsManager, IFolderPicker Picker, ISongsManager songsManager, IAudioManager audio, WeakReferenceMessenger wrm)
+    public MusicServiceVM(IAppSettingsManager settingsManager, IFolderPicker Picker, ISongsManager songsManager, IAudioManager audio, WeakReferenceMessenger wrm, IPlaylistManager plManager)
     {
         appSettingsManager = settingsManager;
         FolderPicker = Picker;
         SongManager = songsManager;
         audioManager = audio;
+        playlistManager = plManager;
 
         _progressTimer = new() { Interval = 1000 };
         _progressTimer.Elapsed += UpdateSongProgress;
@@ -49,7 +49,6 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
         messenger = wrm;
         messenger.Register(this);
     }
-
 
     [ObservableProperty]
     public LyricsModel highlightedLyrics;
@@ -82,71 +81,37 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
 
     IDisposable LyricsSyncSubscription;
 
+    void RefreshSongsList()
+    {
+        if (Songs is null)
+        {
+            var defaultPlaylist = playlistManager.GetDefaultPlayList();
+            if (defaultPlaylist is not null)
+            {
+                Songs = new ObservableCollection<SongModel>(defaultPlaylist.Songs);
+            }
+        }
+    }
+
     [RelayCommand]
     public void PageLoaded()
     {
         IsSongPlaying = false;
+        RefreshSongsList();
+        //      var songsFromDB = SongManager.GetSongs();
 
-        var songsFromDB = SongManager.GetSongs();
-
-        Songs = new ObservableCollection<SongModel>(songsFromDB);
-
-        SelectedSong = Songs.FirstOrDefault();
-        PreviousSong = SelectedSong;
-        if (SelectedSong is not null)
+        //Songs = new ObservableCollection<SongModel>(songsFromDB);
+        if (Songs is not null)
         {
-            SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
-        }
-        TotalSongsCount = Songs.Count;
-        HighlightedLyrics = new LyricsModel { Text = "No lyrics found" };
-    }
-
-    [RelayCommand]
-    public void PlaySongFromTap(SongModel song)
-    {
-        try
-        {
+            SelectedSong = Songs.FirstOrDefault();
             PreviousSong = SelectedSong;
-            SelectedSong = song;
-            SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
-            if (IsSongPlaying)
+            if (SelectedSong is not null)
             {
-                AudioPlayer.PlaybackEnded -= AudioPlayer_PlaybackEnded;
-                AudioPlayer.Stop();
+                SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
             }
-            using FileStream songStream = FetchAndPlaySong(song);
-
-            StartLyricsSync();
-
-            UpdateCurrentlyPlayingSong(); //send message to update now playing page
+            TotalSongsCount = Songs.Count;
         }
-        catch (Exception ex)
-        {
-            //show exception in debug
-            Debug.WriteLine(ex.Message);
-        }
-    }
-
-    private FileStream FetchAndPlaySong(SongModel song, double SeekPosition = 0)
-    {
-        FileStream songStream = new(song.FilePath, FileMode.Open, FileAccess.Read);
-        AudioPlayer = audioManager.CreatePlayer(songStream);
-        if (SongVolume == 0)
-        {
-            AudioPlayer.Volume = 0.5;
-            SongVolume = 0.5;
-        }
-        if (SeekPosition != 0)
-        {
-            AudioPlayer.Seek(SeekPosition);
-        }
-        AudioPlayer.Play();
-        IsSongPlaying = AudioPlayer.IsPlaying;
-        SongVolume = AudioPlayer.Volume;
-        //SongStartedPlaying?.Invoke();
-        _progressTimer.Start();
-        AudioPlayer.PlaybackEnded += AudioPlayer_PlaybackEnded;
-        return songStream;
+        HighlightedLyrics = new LyricsModel { Text = "No lyrics found" };
     }
 
     [RelayCommand]
@@ -172,87 +137,6 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
         }
     }
 
-    [RelayCommand]
-    public void PlayReSumeSong()
-    {
-        if (AudioPlayer is null)
-        {
-            using FileStream songStream = FetchAndPlaySong(SelectedSong);
-        }
-        else
-        {
-            AudioPlayer.Play();
-            IsSongPlaying = AudioPlayer.IsPlaying;
-            _progressTimer.Start();
-        }
-    }
-
-    [RelayCommand]
-    public void PauseSong()
-    {
-        AudioPlayer.Pause();
-        _progressTimer.Stop();
-        IsSongPlaying = AudioPlayer.IsPlaying;
-    }
-
-    [RelayCommand]
-    public void StopSong()
-    {
-        LyricsSyncSubscription.Dispose();
-        AudioPlayer.Stop();
-        _progressTimer.Stop();
-        IsSongPlaying = AudioPlayer.IsPlaying;
-        AudioPlayer.Dispose();
-
-        if (LyricsSyncSubscription is not null)
-        {
-            LyricsSyncSubscription.Dispose();
-            LyricsSyncSubscription = null;
-        }
-    }
-
-    private async void StartLyricsSync()
-    {
-        try
-        {
-            string SongFilePath = SelectedSong.FilePath;
-
-            string lyricsFilePath = Path.ChangeExtension(SongFilePath, ".lrc");
-            if (File.Exists(lyricsFilePath))
-            {
-                if (Lyrics is null)
-                {
-                    Lyrics = new();
-                    ParseLrcFile(lyricsFilePath);
-                }
-                else
-                {
-                    if (SelectedSong != PreviousSong)
-                    {
-                        Lyrics = new();
-                        ParseLrcFile(lyricsFilePath);
-                    }
-                }
-                var LSS = Observable.Interval(TimeSpan.FromMilliseconds(250)).Subscribe(_ => UpdateHighlightedlyrics());
-                LyricsSyncSubscription = LSS;
-            }
-            else
-            {
-                Lyrics = new()
-                {
-                    new LyricsModel { Text = "No lyrics found" }
-                };
-            }
-
-        }
-        catch (Exception ex)
-        {
-            // show a display alert on shell
-            await Shell.Current.DisplayAlert("error", ex.Message, "Cancel");
-        }
-    }
-
-
     private void ParseLrcFile(string lyricsFilePath)
     {
         var regex = new Regex(@"\[(\d+):(\d+\.\d+)\](.*)");
@@ -274,12 +158,9 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     }
     private void UpdateHighlightedlyrics()
     {
-
         if (AudioPlayer is not null)
         {
-            
             HighlightedLyrics = Lyrics.LastOrDefault(l => l.Timestamp <= TimeSpan.FromSeconds(AudioPlayer.CurrentPosition));
-            
         }
     }
 
@@ -322,12 +203,11 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
 
     private void AudioPlayer_PlaybackEnded(object sender, EventArgs e)
     {
-
         try
         {
             LyricsSyncSubscription?.Dispose();
             IsSongPlaying = AudioPlayer.IsPlaying;
-            
+
             SongProgress = 0;
 
             if (AudioPlayer is not null)
@@ -347,13 +227,11 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
                 AudioPlayer = null;
             }
         }
-          
-        
     }
 
     void UpdateCurrentlyPlayingSong()
     {
-        ChangingSongInfoModel changingSongInfo = new()
+        _ = new ChangingSongInfoModel()
         {
             StopCurrentlyPlayingSong = true,
             IsSongPlaying = IsSongPlaying,
@@ -361,11 +239,9 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
             SongDuration = SongDuration,
             SelectedSong = SelectedSong,
             AudioPlayer = AudioPlayer,
-            Lyrics = Lyrics,            
+            Lyrics = Lyrics,
         };
-
     }
-
 
     [RelayCommand]
     public void ClearCollection()
@@ -374,13 +250,12 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
         PageLoaded();
     }
 
-
     [RelayCommand]
     public async void PickFolder()
     {
         CheckPermissions permCheck = new();
 
-        if(await permCheck.CheckAndRequestStoragePermissionAsync())
+        if (await permCheck.CheckAndRequestStoragePermissionAsync())
         {
             CancellationTokenSource source = new();
             CancellationToken token = source.Token;
