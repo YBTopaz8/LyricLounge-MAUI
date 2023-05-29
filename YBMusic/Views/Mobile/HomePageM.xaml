@@ -22,37 +22,43 @@
         </ResourceDictionary>
     </uranium:UraniumContentPage.Resources>
     <Shell.TitleView > <!--You can use this to edit the title bar, add stuff etc-->
-        <Grid >
-            <ImageButton Source="search" WidthRequest="20" HeightRequest="20" HorizontalOptions="Start" VerticalOptions="Center" Grid.Column="0"/>
+        <Grid>
+            <ImageButton Source="search_m" WidthRequest="30" HeightRequest="30" HorizontalOptions="Start" VerticalOptions="Center" Grid.Column="0"/>
             <Label Text="Songs" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1"/>
+            <ImageButton IsVisible="false" Source="menu_vertical_m" Grid.Column="2" HorizontalOptions="End"/>
         </Grid>
     </Shell.TitleView>
-    
-    <VerticalStackLayout x:Name="MainPage">
-        <Label Text="{Binding TotalSongsCount, StringFormat='You have {0} Songs'}" HorizontalOptions="Center"/>
-        <CollectionView ItemsSource="{Binding Songs}">
+
+
+    <toolkit:DockLayout x:Name="MainPage" >
+        <Label toolkit:DockLayout.DockPosition="Top" Margin="8,0"
+               Text="{Binding TotalSongsCount, StringFormat='Total : {0} '}"
+               FontSize="12"
+               HorizontalOptions="End"/>
+
+        <CollectionView ItemsSource="{Binding Songs}"
+                        toolkit:DockLayout.DockPosition="Top">
             <CollectionView.EmptyView>
                 <ContentView>
                     <VerticalStackLayout>
-                        <Image Source="nothing_found" WidthRequest="100"/>
+                        <Image Source="nothing_found_m" WidthRequest="100"/>
                     </VerticalStackLayout>
-                </ContentView>    
+                </ContentView>
             </CollectionView.EmptyView>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:SongModel">
-                    <ScrollView Margin="5,1" >
+                    <ScrollView Margin="5,1">
                         <Border StrokeShape="RoundRectangle 10"
                                 BackgroundColor="Transparent"
                                 Stroke="Transparent"
                                 Padding="5">
-
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <HorizontalStackLayout Grid.Column="0" Spacing="8">
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer
@@ -61,17 +67,17 @@
                                     </HorizontalStackLayout.GestureRecognizers>
                                     <Image WidthRequest="33"
                                                 Source="micro"/>
-                                        <VerticalStackLayout Margin="0,3,0,0">
-                                            <Label Text="{Binding Title}" 
+                                    <VerticalStackLayout Margin="0,3,0,0">
+                                        <Label Text="{Binding Title}" 
                                                TextColor="White" />
-                                            <Label Text="{Binding Artist.Name}" FontSize="12"/>
-                                        </VerticalStackLayout>
+                                        <Label Text="{Binding Artist.Name}" FontSize="12"/>
+                                    </VerticalStackLayout>
                                 </HorizontalStackLayout>
-                                
+
                                 <VerticalStackLayout >
-                                    <HorizontalStackLayout HorizontalOptions="End">                                        
+                                    <HorizontalStackLayout HorizontalOptions="End">
                                         <ImageButton Grid.Column="1"
-                                                 Source="menu_vertical"
+                                                 Source="menu_vertical_m"
                                                  HorizontalOptions="End"
                                                  WidthRequest="20"
                                                  HeightRequest="30"/>
@@ -84,103 +90,62 @@
                                            FontSize="10"/>
                                     </HorizontalStackLayout>
                                 </VerticalStackLayout>
-                                </Grid>                            
-                        </Border>                        
+                            </Grid>
+                        </Border>
                     </ScrollView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <HorizontalStackLayout HorizontalOptions="Center" Spacing="15" IsVisible="false">
-            
-            <HorizontalStackLayout>
-                <Label Text="{Binding SongCurrentPosition, Converter={StaticResource CurrentTimeConverter}}"/>
-                <Slider Value="{Binding SongProgress}" WidthRequest="200"
-                         ThumbColor="DarkSlateBlue"
-                    DragCompletedCommand="{Binding SeekSongSliderValueChangedCommand}"
-                    />
-                <Label Text="{Binding SongDuration, StringFormat='{0:mm\\:ss}'}"/>
-            </HorizontalStackLayout>
-            
-        </HorizontalStackLayout>
-            
-        <HorizontalStackLayout HorizontalOptions="Center" IsVisible="false">
-            <ImageButton Source="low_volume" 
-                         Command="{Binding UpdateVolumeCommand}"
-                         
-                         WidthRequest="20" HeightRequest="20">
-                <ImageButton.CommandParameter>
-                    <x:Int32>0</x:Int32>
-                </ImageButton.CommandParameter>
-            </ImageButton>
-            <Slider Value="{Binding SongVolume}" WidthRequest="200"
-                    DragCompletedCommand="{Binding SliderVolumeChangedCommand}"/>
-            <ImageButton Source="high_volume" 
-                         Command="{Binding UpdateVolumeCommand}"
-                         WidthRequest="20" HeightRequest="20">
-                <ImageButton.CommandParameter>
-                    <x:Int32>1</x:Int32>
-                </ImageButton.CommandParameter>
-            </ImageButton>
-        </HorizontalStackLayout>
-        <Label Text="{Binding HighlightedLyrics.Text}" TextColor="White" HorizontalOptions="Center"/>
-        
-        <ListView ItemsSource="{Binding Lyrics}" IsVisible="false">
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:LyricsModel">
-                    <Label Text="{Binding Text}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <Button Text="go to  now playing" Clicked="Button_Clicked"/>
-        <!--<ImageButton Source="folder"
-                  Command="{Binding PickFolderCommand}"/>
-        <Button Text="Clear Collection"
-            Command="{Binding ClearCollectionCommand}" />-->
-    </VerticalStackLayout>
-    <uranium:UraniumContentPage.Attachments>
-        <material:BottomSheetView BackgroundColor="#0B090A" CornerRadius="7"
-                                  
-                                  
-            CloseOnTapOutside="True" x:Name="BottomSheetMusic">
-            <material:BottomSheetView.Header>
-                <VerticalStackLayout x:Name="BottomSheetHeader">
-                    <ProgressBar Progress="{Binding SongProgress}" HorizontalOptions="Fill"                                 
-                                 ProgressColor="DarkSlateBlue"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <HorizontalStackLayout Grid.Column="0">
-                            <Image WidthRequest="40"
+        <VerticalStackLayout toolkit:DockLayout.DockPosition="Bottom" 
+                                VerticalOptions="End">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+            </VerticalStackLayout.GestureRecognizers>
+            <ProgressBar Progress="{Binding SongProgress}"
+                             ProgressColor="DarkSlateBlue">
+            </ProgressBar>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <HorizontalStackLayout Grid.Column="0">
+                    <Image WidthRequest="40"
                                HeightRequest="30"
-                                Source="micro"/>
-                            <Label Text="{Binding SelectedSong.Title}" TextColor="White" HorizontalTextAlignment="Center" />
-                            <Label Text="{Binding SelectedSong.Artist.Name}" TextColor="White" HorizontalTextAlignment="Center"/>
-                        </HorizontalStackLayout>
+                                Source="material/micro"/>
+                    <Label TextColor="White" HorizontalTextAlignment="Center" Margin="0,3,0,0">
+                        <Label.Text>
+                            <MultiBinding StringFormat="{} {0} by {1}">
+                                <Binding Path="SelectedSong.Title"/>
+                                <Binding Path="SelectedSong.Artist.Name"/>
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </HorizontalStackLayout>
 
-                        <HorizontalStackLayout Grid.Column="1">
-                            <ImageButton Source="skip_to_start" 
-                                     WidthRequest="20"
-                                     HeightRequest="20"/>
-                            <ImageButton Source="play" IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
+                <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                    <ImageButton Source="skip_to_start_m" 
+                                     WidthRequest="25"
+                                     HeightRequest="25"/>
+                    <ImageButton Source="play_m" IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
                                      Command="{Binding PlayReSumeSongCommand}"
-                                     WidthRequest="20"
-                                     HeightRequest="20"/>
-                            <ImageButton Source="pause" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
+                                     WidthRequest="25"
+                                     HeightRequest="25"/>
+                    <ImageButton Source="pause_button_m" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
                                      Command="{Binding PauseSongCommand}"
-                                     WidthRequest="20"
-                                     HeightRequest="20"/>
-                            <ImageButton Source="end"
-                                     WidthRequest="20"
-                                     HeightRequest="20"/>
-                        </HorizontalStackLayout>
-                    </Grid>
-                </VerticalStackLayout>
-                
-            </material:BottomSheetView.Header>
-        
-        </material:BottomSheetView>
+                                     WidthRequest="25"
+                                     HeightRequest="25"/>
+                    <ImageButton Source="end_m"
+                                     WidthRequest="25"
+                                     HeightRequest="25"/>
+                </HorizontalStackLayout>
+            </Grid>
+        </VerticalStackLayout>
+    </toolkit:DockLayout>
+
+
+    <uranium:UraniumContentPage.Attachments>
+
     </uranium:UraniumContentPage.Attachments>
 </uranium:UraniumContentPage>

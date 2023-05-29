@@ -19,15 +19,9 @@ public partial class HomePageM :  UraniumUI.Pages.UraniumContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        BottomSheetMusic.PropertyChanged += BottomSheetMusicIsPresented;
     }
-
-    private void BottomSheetMusicIsPresented(object sender, PropertyChangedEventArgs e)
-    {
-        
-    }
-
-    private async void Button_Clicked(object sender, EventArgs e)
+    
+    private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
         await Shell.Current.GoToAsync(nameof(NowPlayingPageM));
     }

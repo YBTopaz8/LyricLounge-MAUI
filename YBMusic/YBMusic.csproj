@@ -127,4 +127,8 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiImage Include="Resources\Images\material\playlist_m.svg" />
+	</ItemGroup>
+
 </Project>

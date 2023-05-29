@@ -9,7 +9,7 @@
     <TabBar>
         <ShellContent
         Title="Songs" 
-        Icon="music.png"
+        Icon="music_m"
         ContentTemplate="{DataTemplate local:HomePageM}"
         Route="HomePageM"
         />
@@ -18,22 +18,17 @@
                       />
         <ShellContent
             Title="PlayLists"
-            Icon="playlist"
+            Icon="playlist_m"
             ContentTemplate="{DataTemplate local:PlayListPageM}"
             Route="PlaylistsPageM"
             />
         <ShellContent
             Title="Settings"
-            Icon="settings"
+            Icon="settings_m"
             ContentTemplate="{DataTemplate local:AppSettingsListM}"
             Route="AppSettingsListM"
             />
     </TabBar>
 
-    <ShellContent
-        Title="Songs" 
-        Icon="music.png"
-        ContentTemplate="{DataTemplate local:HomePageM}"
-        Route="HomePageM"
-        />
+    
 </Shell>

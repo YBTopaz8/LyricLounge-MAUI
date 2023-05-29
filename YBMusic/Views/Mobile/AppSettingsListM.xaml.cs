@@ -35,8 +35,8 @@ public partial class AppSettingsListM : ContentPage
                 folder
             };
             _appSettingsManager.ScanSongs(folders);
-        }
 
-        messenger.Send(new RefreshSongsList(true));
+            messenger.Send(new RefreshSongsList(true));
+        }
     }
 }
