@@ -15,10 +15,13 @@ public partial class HomePageM : UraniumUI.Pages.UraniumContentPage
         BindingContext = viewModel;
     }
 
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
-       // viewModel.PageLoadedCommand.Execute(null);
+
+        
+        viewModel.PageLoadedCommand.Execute(null);
     }
     private async void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {

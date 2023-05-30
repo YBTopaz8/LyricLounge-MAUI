@@ -37,7 +37,7 @@
 
                 <ImageButton Source="lullaby_m" WidthRequest="20" HeightRequest="25" />
                 <ImageButton Source="heart_m" WidthRequest="20" HeightRequest="25" />
-                <ImageButton Source="heartfilled_m" WidthRequest="20" HeightRequest="25" />
+                <ImageButton Source="lyrics_m" WidthRequest="20" HeightRequest="25" />
 
             </HorizontalStackLayout>
         </Grid>
@@ -64,7 +64,9 @@
             </Grid.RowDefinitions>
             <ImageButton Source="repeat_m" Grid.Column="0" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
             <ImageButton Source="repeat_one_m" Grid.Column="0" IsVisible="false" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
-            <ImageButton Source="skip_to_start_m" Grid.Column="1" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+            
+            <ImageButton Source="skip_to_start_m" Grid.Column="1" WidthRequest="20" HorizontalOptions="FillAndExpand"
+                         Command="{Binding SkipPreviousCommand}"/>
 
             <Border Grid.Column="2"  HorizontalOptions="FillAndExpand" WidthRequest="60" BackgroundColor="#1E1E1E" 
                     StrokeThickness="0"
@@ -81,15 +83,17 @@
                 </HorizontalStackLayout>
 
             </Border>
-            <ImageButton Source="end_m" Grid.Column="3" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+            <ImageButton Source="end_m" Grid.Column="3" WidthRequest="20" HorizontalOptions="FillAndExpand"
+                         Command="{Binding SkipNextCommand}"/>
             <ImageButton Source="shuffle_m" Grid.Column="4" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
         </Grid>
 
         <!--Section for Song Artist and title-->
         <VerticalStackLayout toolkit:DockLayout.DockPosition="Bottom"
-            HorizontalOptions="Center" Margin="0,20" VerticalOptions="End" Spacing="5"
-                             >
-            <Label Text="{Binding SelectedSong.Title}" FontAttributes="Bold" FontSize="22" HorizontalOptions="Center"/>
+                             HorizontalOptions="Center" 
+                             Margin="0,20" VerticalOptions="End" Spacing="5">
+            
+            <Label Text="{Binding SelectedSong.Title}" FontAttributes="Bold" FontSize="22"/>
             <Label Text="{Binding SelectedSong.Artist.Name}" Margin="0,0" HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
@@ -118,10 +122,18 @@
 
             <ImageButton Grid.Column="0"
                  Source="{Binding SelectedSong.Picture, Converter={StaticResource ByteToImageConverter}}" HeightRequest="350" WidthRequest="250" Opacity="0.3"/>
-            <Label Grid.Column="0" Text="{Binding HighlightedLyrics.Text}" IsVisible="{Binding IsSongPlaying}"
-                   FontSize="24"
+            <VerticalStackLayout Grid.Column="0" IsVisible="{Binding IsSongPlaying}" Spacing="8"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Center">
+                <Label Text="{Binding PreviousLyric.Text}" HorizontalTextAlignment="Center"
+                       FontSize="10"/>
+                <Label Text="{Binding HighlightedLyrics.Text}" 
+                   FontSize="22" TextColor="Orange"
                    x:Name="LyricLabel"
-                   WidthRequest="350" HorizontalOptions="Center" HorizontalTextAlignment="Center"  VerticalOptions="Center" />
+                   WidthRequest="350" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding NextLyric.Text}" HorizontalTextAlignment="Center"
+                       FontSize="12"/>
+            </VerticalStackLayout>
             
         </Grid>
 

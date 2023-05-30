@@ -5,8 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Plugin.Maui.Audio;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Timers;
@@ -14,7 +12,6 @@ using YB.DataAccess.IRepositories;
 using YB.Models;
 using YB.Utilities;
 using YB.Utilities.Messages;
-using YBMusic.Views.Mobile;
 
 namespace YBMusic.ViewModels;
 
@@ -54,9 +51,9 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
         string LastSongPlayedID = Preferences.Get("LastPlayedSongID", null);
         if (LastSongPlayedID is not null)
         {
-            SelectedSong = SongManager.GetSongById(LastSongPlayedID);
-            PreviousSong = SelectedSong;
+            SelectedSong = SongManager.GetSongById(LastSongPlayedID);            
             SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
+            
         }
 
 
@@ -69,10 +66,16 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
             TotalSongsCount = Songs.Count;
         }
         IsRefreshing = false;
+
+
     }
 
     [ObservableProperty]
     public LyricsModel highlightedLyrics;
+    [ObservableProperty]
+    public LyricsModel previousLyric;
+    [ObservableProperty]
+    public LyricsModel nextLyric;
 
     [ObservableProperty]
     private ObservableCollection<SongModel> _songs;
@@ -81,8 +84,11 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     int totalSongsCount;
 
     SongModel PreviousSong;
+
     [ObservableProperty]
     SongModel selectedSong;
+
+    int SelectedSongIndex;
 
     [ObservableProperty]
     bool isSongPlaying;
@@ -98,6 +104,8 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
 
     [ObservableProperty]
     double songVolume;
+    [ObservableProperty]
+    bool isRefreshing;
 
 
 
@@ -124,13 +132,12 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
             }
         }
     }
-    [ObservableProperty]
-    bool isRefreshing;
 
 
     [RelayCommand]
     public void PageLoaded()
     {
+        SelectedSongIndex = Songs.IndexOf(SelectedSong);
         HighlightedLyrics = new LyricsModel { Text = "No lyrics found" };
     }
 
@@ -181,6 +188,22 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
         if (AudioPlayer is not null)
         {
             HighlightedLyrics = Lyrics.LastOrDefault(l => l.Timestamp <= TimeSpan.FromSeconds(AudioPlayer.CurrentPosition));
+            if (HighlightedLyrics is not null)
+            {
+                int currentIndex = Lyrics.IndexOf(HighlightedLyrics);
+                PreviousLyric = null;
+                if (currentIndex > 0)
+                {
+                    PreviousLyric = Lyrics[currentIndex - 1];
+                }
+
+                NextLyric = null;
+                if (currentIndex < Lyrics.Count - 1)
+                {
+                    NextLyric = Lyrics[currentIndex + 1];
+                }
+
+            }
         }
     }
 

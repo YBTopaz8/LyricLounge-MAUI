@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Plugin.Maui.Audio;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,6 +21,7 @@ public partial class MusicServiceVM : ObservableObject
         if (AudioPlayer is null)
         {
             using FileStream songStream = FetchAndPlaySong(SelectedSong);
+
         }
         else
         {
@@ -58,7 +60,6 @@ public partial class MusicServiceVM : ObservableObject
     {
         try
         {
-            PreviousSong = SelectedSong;
             SelectedSong = song;
             SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
             if (IsSongPlaying)
@@ -81,9 +82,53 @@ public partial class MusicServiceVM : ObservableObject
         }
     }
 
+
+    [RelayCommand]
+    public void SkipNext()
+    {
+        if (Songs?.Count > 0)
+        {
+            SelectedSongIndex++;
+            if (SelectedSongIndex >= Songs.Count)
+            {
+                SelectedSongIndex = 0; // got back to first song
+            }
+            var nextSong = Songs[SelectedSongIndex];
+            PlaySongFromTap(nextSong);
+        }
+    }
+    [RelayCommand]
+    public void SkipPrevious()
+    {
+        if (AudioPlayer is not null)
+        {
+
+            if (AudioPlayer.CurrentPosition > 5)
+            {
+                AudioPlayer.Seek(0);
+                HighlightedLyrics = new ();
+                PreviousLyric = new();
+                NextLyric = new();
+            }
+            else if (SelectedSongIndex > 0)
+            {
+                SelectedSongIndex--;
+                var previousSong = Songs[SelectedSongIndex];
+                PlaySongFromTap(previousSong);
+            }
+        }
+        else
+        {
+            SelectedSongIndex--;
+            var previousSong = Songs[SelectedSongIndex];
+            FetchAndPlaySong(previousSong);
+        }
+    }
     private FileStream FetchAndPlaySong(SongModel song, double SeekPosition = 0)
     {
-        FileStream songStream = new(song.FilePath, FileMode.Open, FileAccess.Read);
+        SelectedSongIndex = Songs.IndexOf(song);
+        SelectedSong = song;
+        using FileStream songStream = new(song.FilePath, FileMode.Open, FileAccess.Read);
         AudioPlayer = audioManager.CreatePlayer(songStream);
         if (SongVolume == 0)
         {
@@ -97,9 +142,11 @@ public partial class MusicServiceVM : ObservableObject
         AudioPlayer.Play();
         IsSongPlaying = AudioPlayer.IsPlaying;
         SongVolume = AudioPlayer.Volume;
-        //SongStartedPlaying?.Invoke();
+        
         _progressTimer.Start();
+        StartLyricsSync();
         AudioPlayer.PlaybackEnded += AudioPlayer_PlaybackEnded;
+
         return songStream;
     }
 

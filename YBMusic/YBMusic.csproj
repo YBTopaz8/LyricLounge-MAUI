@@ -33,18 +33,22 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
 	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	  <ApplicationId>com.yvanbrunel.lyriclounge</ApplicationId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
 	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	  <ApplicationId>com.yvanbrunel.lyriclounge</ApplicationId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.22621.0|AnyCPU'">
 	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	  <ApplicationId>com.yvanbrunel.lyriclounge</ApplicationId>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.22621.0|AnyCPU'">
 	  <ApplicationTitle>Lyric Lounge</ApplicationTitle>
+	  <ApplicationId>com.yvanbrunel.lyriclounge</ApplicationId>
 	</PropertyGroup>
 
 	<ItemGroup>

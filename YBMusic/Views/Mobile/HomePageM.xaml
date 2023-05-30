@@ -133,7 +133,7 @@
 
 
                 <HorizontalStackLayout Spacing="5">
-                    <ImageButton Source="skip_to_start_m" 
+                    <ImageButton Source="skip_to_start_m" Command="{Binding SkipPreviousCommand}"
                                      WidthRequest="35"
                                      HeightRequest="35"/>
                     <ImageButton Source="play_m" IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
@@ -144,33 +144,12 @@
                                      Command="{Binding PauseSongCommand}"
                                      WidthRequest="35"
                                      HeightRequest="35"/>
-                    <ImageButton Source="end_m"
+                    <ImageButton Source="end_m" Command="{Binding SkipNextCommand}"
                                      WidthRequest="35"
                                      HeightRequest="35"/>
                 </HorizontalStackLayout>
             </FlexLayout>
-            
-            <!--<Grid>
-               
-
-    
-                <HorizontalStackLayout Spacing="5">
-                    <ImageButton Source="skip_to_start_m" 
-                                     WidthRequest="35"
-                                     HeightRequest="35"/>
-                    <ImageButton Source="play_m" IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
-                                     Command="{Binding PlayReSumeSongCommand}"
-                                     WidthRequest="35"
-                                     HeightRequest="35"/>
-                    <ImageButton Source="pause_button_m" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
-                                     Command="{Binding PauseSongCommand}"
-                                     WidthRequest="35"
-                                     HeightRequest="35"/>
-                    <ImageButton Source="end_m"
-                                     WidthRequest="35"
-                                     HeightRequest="35"/>
-                </HorizontalStackLayout>
-            </Grid>-->
+         
         </VerticalStackLayout>
     </toolkit:DockLayout>
 
