@@ -42,6 +42,7 @@ public class SongsManager : ISongsManager
     public List<SongModel> GetSongs()
     {
         OpenDB();
+
         var ss = db.All<SongModel>().ToList();
         return ss;
     }
@@ -49,7 +50,7 @@ public class SongsManager : ISongsManager
     {
         throw new NotImplementedException();
     }
-    public bool AddSong(SongModel song)
+    public async Task<bool> AddSong(SongModel song)
     {
         try
         {
@@ -57,7 +58,7 @@ public class SongsManager : ISongsManager
             var exisingSong = db.All<SongModel>().FirstOrDefault(s => s.FilePath == song.FilePath);
             if (exisingSong is null)
             {
-                var s = db.Write(() => db.Add(song));
+                var s = await db.WriteAsync(() => db.Add(song));
 
                 return s is not null;
             }
@@ -74,9 +75,11 @@ public class SongsManager : ISongsManager
         }
     }
 
-    public Task<SongModel> GetSongById(string id)
+    public SongModel GetSongById(string id)
     {
-        throw new NotImplementedException();
+        OpenDB();
+        SongModel song = db.All<SongModel>().FirstOrDefault(s => s.Id == id);
+        return song;
     }
 
     void OpenAndDeleteDB()

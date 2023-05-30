@@ -14,6 +14,7 @@ public partial class NowPlayingPageM : ContentPage
         this.BindingContext = vm;
     }
 
+
     private async void ImageButton_Clicked(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync("..");

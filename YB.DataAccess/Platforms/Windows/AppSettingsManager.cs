@@ -13,6 +13,7 @@ public class AppSettingsManager : IAppSettingsManager
     {
         throw new NotImplementedException();
     }
+
     public void ScanSongs()
     {
         throw new NotImplementedException();

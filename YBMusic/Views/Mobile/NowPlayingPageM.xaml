@@ -17,48 +17,41 @@
             <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
             <converters:DurationConverterFromMsToTimeSpan x:Key="DurationConverter"/>
             <converters:CurrentTimeConverterFromSecToTimeSpan x:Key="CurrentTimeConverter"/>
+            <converters:ByteArrayToImageSourceConverter x:Key="ByteToImageConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
-    <toolkit:DockLayout VerticalOptions="End" x:Name="PageContent">
-        <!--Section for song image and lyrics-->
-        <Grid VerticalOptions="End">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <ImageButton Grid.Column="0"
-                toolkit:DockLayout.DockPosition="Top" Source="play" HeightRequest="250" WidthRequest="200" Opacity="0.4"/>
-            <Label Grid.Column="0" Text="{Binding HighlightedLyrics.Text}" x:Name="LyricLabel"
-                   WidthRequest="250" HorizontalOptions="Center" HorizontalTextAlignment="Center"  VerticalOptions="Center" />
-        </Grid>
-
-        <!--Section for song progress-->
-        <Grid toolkit:DockLayout.DockPosition="Top" Margin="8,25,8,40" VerticalOptions="End">
+    <toolkit:DockLayout x:Name="PageContent" >
+        
+        
+        <!--Section for Page options-->
+        <Grid HeightRequest="40" toolkit:DockLayout.DockPosition="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Label Text="{Binding SongCurrentPosition, Converter={StaticResource CurrentTimeConverter}}"
-                   WidthRequest="40" Grid.Column="0" Margin="5" />
-            <Slider Value="{Binding SongProgress}" MinimumTrackColor="DarkSlateBlue" 
-                    DragCompletedCommand="{Binding SeekSongSliderValueChangedCommand}"
-                    Grid.Column="1" HeightRequest="30" VerticalOptions="Start"/>
 
-            <Label Text="{Binding SongDuration , StringFormat='{0:mm\\:ss}'}" WidthRequest="40" Grid.Column="2" Margin="5"/>
+            <HorizontalStackLayout Grid.Column="1" 
+                                   Margin="8,0"
+                                   HorizontalOptions="End" Spacing="10">
+
+                <ImageButton Source="lullaby_m" WidthRequest="20" HeightRequest="25" />
+                <ImageButton Source="heart_m" WidthRequest="20" HeightRequest="25" />
+                <ImageButton Source="heartfilled_m" WidthRequest="20" HeightRequest="25" />
+
+            </HorizontalStackLayout>
         </Grid>
 
-        <!--Section for Song Artist and title-->       
-        <VerticalStackLayout HorizontalOptions="Center" Margin="0,20" VerticalOptions="End" Spacing="5"
-                             toolkit:DockLayout.DockPosition="Top">
-            <Label Text="{Binding SelectedSong.Title}" FontAttributes="Bold" FontSize="19"/>
-            <Label Text="{Binding SelectedSong.Artist.Name}" Margin="20,0" HorizontalOptions="Center"/>
-        </VerticalStackLayout>
+        <!--Section for song quality-->
+        <HorizontalStackLayout toolkit:DockLayout.DockPosition="Bottom"
+             HorizontalOptions="Center" VerticalOptions="End">
+            <Label Text="{Binding SelectedSong.FileSize, StringFormat='{0} MB'}" IsVisible="false"/>
+            <Label Text="{Binding SelectedSong.FileFormat}" TextTransform="Uppercase"/>
+            <Label Text="{Binding SelectedSong.SampleRate, StringFormat=' - {0} Hz'}"/>
+        </HorizontalStackLayout>
 
         <!--Section for song controls-->
-        <Grid toolkit:DockLayout.DockPosition="Top" Margin="0,40"
-              VerticalOptions="End">
+        <Grid toolkit:DockLayout.DockPosition="Bottom" Margin="0,40">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -78,44 +71,61 @@
                     StrokeShape="RoundRectangle 30">
 
                 <HorizontalStackLayout HorizontalOptions="Center">
-                    <ImageButton Source="play_m" WidthRequest="20" Command="{Binding PlayReSumeSongCommand}"
+                    <ImageButton Source="play_m" WidthRequest="58" Command="{Binding PlayReSumeSongCommand}"
                                  IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
                                  HorizontalOptions="FillAndExpand"/>
 
                     <ImageButton Source="pause_button_m" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
                                  Command="{Binding PauseSongCommand}"
-                                 WidthRequest="20" HorizontalOptions="FillAndExpand"/>
+                                 WidthRequest="58" HorizontalOptions="FillAndExpand"/>
                 </HorizontalStackLayout>
-                
+
             </Border>
             <ImageButton Source="end_m" Grid.Column="3" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
             <ImageButton Source="shuffle_m" Grid.Column="4" WidthRequest="20" HorizontalOptions="FillAndExpand"/>
         </Grid>
 
-        <!--Section for song quality-->
-        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="End"
-                               toolkit:DockLayout.DockPosition="Top">
-            <Label Text="{Binding SelectedSong.FileFormat}"/>
-        </HorizontalStackLayout>
+        <!--Section for Song Artist and title-->
+        <VerticalStackLayout toolkit:DockLayout.DockPosition="Bottom"
+            HorizontalOptions="Center" Margin="0,20" VerticalOptions="End" Spacing="5"
+                             >
+            <Label Text="{Binding SelectedSong.Title}" FontAttributes="Bold" FontSize="22" HorizontalOptions="Center"/>
+            <Label Text="{Binding SelectedSong.Artist.Name}" Margin="0,0" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
 
-        <!--Section for Page options-->
-        <Grid HeightRequest="40" VerticalOptions="End">
+        <!--Section for song progress-->
+        <Grid toolkit:DockLayout.DockPosition="Bottom" Margin="8,25,8,40" VerticalOptions="End">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
+            <Label Text="{Binding SongCurrentPosition, Converter={StaticResource CurrentTimeConverter}}"
+                   WidthRequest="40" Grid.Column="0" Margin="5" />
+            <Slider Value="{Binding SongProgress}" MinimumTrackColor="DarkSlateBlue" 
+                    DragCompletedCommand="{Binding SeekSongSliderValueChangedCommand}"
+                    Grid.Column="1" HeightRequest="30" VerticalOptions="Start"/>
 
-            <HorizontalStackLayout Grid.Column="1" 
-                                   Margin="8,0"
-                                   HorizontalOptions="End" Spacing="10">
-
-                <ImageButton Source="lullaby_m" WidthRequest="20" HeightRequest="25" />
-                <ImageButton Source="heart_m" WidthRequest="20" HeightRequest="25" />
-                <ImageButton Source="heartfilled_m" WidthRequest="20" HeightRequest="25" />
-
-            </HorizontalStackLayout>
+            <Label Text="{Binding SongDuration , StringFormat='{0:mm\\:ss}'}" WidthRequest="40" Grid.Column="2" Margin="5"/>
         </Grid>
 
+        <!--Section for song image and lyrics-->
+        <Grid toolkit:DockLayout.DockPosition="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <ImageButton Grid.Column="0"
+                 Source="{Binding SelectedSong.Picture, Converter={StaticResource ByteToImageConverter}}" HeightRequest="350" WidthRequest="250" Opacity="0.3"/>
+            <Label Grid.Column="0" Text="{Binding HighlightedLyrics.Text}" IsVisible="{Binding IsSongPlaying}"
+                   FontSize="24"
+                   x:Name="LyricLabel"
+                   WidthRequest="350" HorizontalOptions="Center" HorizontalTextAlignment="Center"  VerticalOptions="Center" />
+            
+        </Grid>
+
+
+        
     </toolkit:DockLayout>
 </ContentPage>

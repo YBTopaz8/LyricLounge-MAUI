@@ -19,6 +19,7 @@
             <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
             <converters:DurationConverterFromMsToTimeSpan x:Key="DurationConverter"/>
             <converters:CurrentTimeConverterFromSecToTimeSpan x:Key="CurrentTimeConverter"/>
+            <converters:ByteArrayToImageSourceConverter x:Key="ByteToImageConverter"/>
         </ResourceDictionary>
     </uranium:UraniumContentPage.Resources>
     <Shell.TitleView > <!--You can use this to edit the title bar, add stuff etc-->
@@ -36,19 +37,22 @@
                FontSize="12"
                HorizontalOptions="End"/>
 
-        <CollectionView ItemsSource="{Binding Songs}"
+        <RefreshView IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshSongsListCommand}">
+            <CollectionView ItemsSource="{Binding Songs}" HeightRequest="830" VerticalScrollBarVisibility="Always"
                         toolkit:DockLayout.DockPosition="Top">
-            <CollectionView.EmptyView>
-                <ContentView>
-                    <VerticalStackLayout>
-                        <Image Source="nothing_found_m" WidthRequest="100"/>
-                    </VerticalStackLayout>
-                </ContentView>
-            </CollectionView.EmptyView>
+                <CollectionView.EmptyView>
+                    <ContentView>
+                        <VerticalStackLayout>
+                            <Image Source="nothing_found_m" WidthRequest="100"/>
+                            <Label Text="NO SONGS FOUND" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </ContentView>
+                </CollectionView.EmptyView>
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:SongModel">
-                    <ScrollView Margin="5,1">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:SongModel">
+
                         <Border StrokeShape="RoundRectangle 10"
                                 BackgroundColor="Transparent"
                                 Stroke="Transparent"
@@ -65,8 +69,8 @@
                                         Command="{Binding BindingContext.PlaySongFromTapCommand, Source={x:Reference myPage}}"
                                         CommandParameter="{Binding .}"/>
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Image WidthRequest="33"
-                                                Source="placeholder_m"/>
+                                    <Image WidthRequest="50"
+                                                Source="{Binding Picture, Converter={StaticResource ByteToImageConverter}}"/>
                                     <VerticalStackLayout Margin="0,3,0,0">
                                         <Label Text="{Binding Title}" 
                                                TextColor="White" />
@@ -76,6 +80,9 @@
 
                                 <VerticalStackLayout >
                                     <HorizontalStackLayout HorizontalOptions="End">
+                                        <Image Source="lyrics_m" 
+                                               WidthRequest="12"                                               
+                                               IsVisible="{Binding HasLyrics}"/>
                                         <ImageButton Grid.Column="1"
                                                  Source="menu_vertical_m"
                                                  HorizontalOptions="End"
@@ -92,29 +99,29 @@
                                 </VerticalStackLayout>
                             </Grid>
                         </Border>
-                    </ScrollView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </RefreshView>
 
         <VerticalStackLayout toolkit:DockLayout.DockPosition="Bottom" 
-                                VerticalOptions="End">
+                                VerticalOptions="End" HeightRequest="65">
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
             </VerticalStackLayout.GestureRecognizers>
             <ProgressBar Progress="{Binding SongProgress}"
                              ProgressColor="DarkSlateBlue">
             </ProgressBar>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <HorizontalStackLayout Grid.Column="0">
-                    <Image WidthRequest="40"
-                               HeightRequest="30"
-                                Source="material/micro"/>
-                    <Label TextColor="White" HorizontalTextAlignment="Center" Margin="0,3,0,0">
+            
+            <FlexLayout JustifyContent="SpaceBetween" Direction="Row" Margin="5,0">
+
+                <HorizontalStackLayout>
+                    <Image WidthRequest="45"
+                        Source="{Binding SelectedSong.Picture, Converter={StaticResource ByteToImageConverter}}"/>
+                    <Label TextColor="White" 
+                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Margin="0,3,0,0">
                         <Label.Text>
                             <MultiBinding StringFormat="{} {0} by {1}">
                                 <Binding Path="SelectedSong.Title"/>
@@ -124,23 +131,46 @@
                     </Label>
                 </HorizontalStackLayout>
 
-                <HorizontalStackLayout Grid.Column="1" Spacing="5" Margin="3,0">
+
+                <HorizontalStackLayout Spacing="5">
                     <ImageButton Source="skip_to_start_m" 
-                                     WidthRequest="25"
-                                     HeightRequest="25"/>
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
                     <ImageButton Source="play_m" IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
                                      Command="{Binding PlayReSumeSongCommand}"
-                                     WidthRequest="25"
-                                     HeightRequest="25"/>
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
                     <ImageButton Source="pause_button_m" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
                                      Command="{Binding PauseSongCommand}"
-                                     WidthRequest="25"
-                                     HeightRequest="25"/>
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
                     <ImageButton Source="end_m"
-                                     WidthRequest="25"
-                                     HeightRequest="25"/>
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
                 </HorizontalStackLayout>
-            </Grid>
+            </FlexLayout>
+            
+            <!--<Grid>
+               
+
+    
+                <HorizontalStackLayout Spacing="5">
+                    <ImageButton Source="skip_to_start_m" 
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
+                    <ImageButton Source="play_m" IsVisible="{Binding IsVisible, Source={x:Reference PauseButton}, Converter={StaticResource InverseBoolConverter}}"
+                                     Command="{Binding PlayReSumeSongCommand}"
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
+                    <ImageButton Source="pause_button_m" x:Name="PauseButton" IsVisible="{Binding IsSongPlaying}"
+                                     Command="{Binding PauseSongCommand}"
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
+                    <ImageButton Source="end_m"
+                                     WidthRequest="35"
+                                     HeightRequest="35"/>
+                </HorizontalStackLayout>
+            </Grid>-->
         </VerticalStackLayout>
     </toolkit:DockLayout>
 

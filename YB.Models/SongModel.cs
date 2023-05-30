@@ -12,15 +12,28 @@ public class SongModel : RealmObject
     public int? ReleaseYear { get; set; }
     public int? TrackNumber { get; set; }
     public string FileFormat { get; set; }
-    public string FileSize { get; set; }
+    public double FileSize { get; set; }
     public int BitRate { get; set; }
+    public double SampleRate { get; set; }
     public decimal Rating { get; set; }
-    public IList<string> Lyrics { get; }
+    public bool HasLyrics { get; set; }
+    public IList<LyricPhraseModel> SynchronizedLyrics { get;}
+    public string UnSynchronizedLyrics { get; set; }
     public string ImagePath { get; set; }
+
     public bool IsFavorite { get; set; }
     public DateTimeOffset DateAdded { get; set; }
     public IList<DateTimeOffset> PlayTimes { get; }
+
+    public byte[] Picture { get; set; }
     public GenreModel? Genre { get; set; }
     public ArtistModel? Artist { get; set; }
     public AlbumModel? Album { get; set; }
+}
+
+public class LyricPhraseModel : RealmObject
+{
+    public int TimestampMs { get; set; }
+
+    public string Text { get; set; }
 }

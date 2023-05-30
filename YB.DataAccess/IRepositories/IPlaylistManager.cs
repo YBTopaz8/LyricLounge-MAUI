@@ -8,7 +8,7 @@ using YB.Models;
 namespace YB.DataAccess.IRepositories;
 public interface IPlaylistManager
 {
-    bool CreateNewPlaylist(PlaylistModel playlist);
+    Task<bool> CreateNewPlaylist(PlaylistModel playlist);
     List<PlaylistModel> GetAllPlaylists();
     PlaylistModel GetPlayList(string PlaylistName);
     PlaylistModel GetDefaultPlayList();

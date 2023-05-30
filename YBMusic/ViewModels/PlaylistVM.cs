@@ -33,7 +33,7 @@ public partial class PlaylistVM : ObservableObject
     [RelayCommand]
     void OpenPlaylistPage(PlaylistModel playlist)
     {
-     
-        Shell.Current.DisplayAlert("Playlist Info",$"Selected Playlist is {playlist.Name} and has {playlist.Songs.Count} songs" , "OK");
+
+        Shell.Current.DisplayAlert("Playlist Info", $"Selected Playlist is {playlist.Name} and has {playlist.Songs.Count} songs", "OK");
     }
 }

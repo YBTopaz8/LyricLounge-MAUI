@@ -149,6 +149,7 @@
 	  <MauiImage Include="Resources\Images\material\heartfilled_m.svg" />
 	  <MauiImage Include="Resources\Images\material\placeholder_m.svg" />
 	  <MauiImage Include="Resources\Images\material\lullaby_m.svg" />
+	  <MauiImage Include="Resources\Images\material\lyrics_m.svg" />
 
 	  <MauiImage Include="Resources\Images\material\nothing_found_m.svg" />
 	  <MauiImage Include="Resources\Images\material\pause_button_m.svg" />

@@ -71,10 +71,10 @@ class MusicScanner
             }
         }
     }
-    void ScanDirectory(string folder)
+    async void ScanDirectory(string folder)
     {
         List<SongModel> listOfSongs = new();
-        ScanSongsAndFillList(folder);
+        await ScanSongsAndFillList(folder);
         if (AddSongsToDB(out listOfSongs))
         {
             PlaylistModel defaultPlaylist = new()
@@ -84,59 +84,87 @@ class MusicScanner
                 Id = Guid.NewGuid().ToString(),
             };
             listOfSongs.ForEach(song => defaultPlaylist.Songs.Add(song));
-            playlistManager.CreateNewPlaylist(defaultPlaylist);
+           await playlistManager.CreateNewPlaylist(defaultPlaylist);
         }
     }
 
-    private void ScanSongsAndFillList(string folder)
+    private async Task ScanSongsAndFillList(string folder)
     {
-        try
+        await Task.Run(async () =>
         {
-            string[] files = Directory.GetFiles(folder);
-            for (int i = 0; i < files.Length; i++)
+            try
             {
-                string file = files[i];
-                if (file.EndsWith(".mp3") || file.EndsWith(".flac"))
+                string[] files = Directory.GetFiles(folder);
+                for (int i = 0; i < files.Length; i++)
                 {
-                    Track track = new(file);
-
-                    if (track.Duration >= 29)
+                    string file = files[i];
+                    if (file.EndsWith(".mp3") || file.EndsWith(".flac"))
                     {
-                        SongModel song = new()
+                        Track track = new(file);
+
+                        if (track.Duration > 29)
                         {
-                            Title = track.Title,
-                            BitRate = track.Bitrate,
-                            DateAdded = DateTime.Now,
-                            DurationInMilliseconds = track.DurationMs,
-                            TrackNumber = track.TrackNumber,
-                            ReleaseYear = track.Year,
-                            FilePath = track.Path,
-                            FileFormat = Path.GetExtension(file).TrimStart('.'),
-                        };
+                            SongModel song = new()
+                            {
+                                Title = track.Title,
+                                BitRate = track.Bitrate,
+                                DateAdded = DateTime.Now,
+                                DurationInMilliseconds = track.DurationMs,
 
-                        song.BitRate = track.Bitrate;
+                                TrackNumber = track.TrackNumber,
+                                ReleaseYear = track.Year,
+                                FilePath = track.Path,
+                                FileFormat = Path.GetExtension(file).TrimStart('.'),
+                                SampleRate = track.SampleRate,
 
-                        song.Artist = (track.Artist is not null) ? new() { Name = track.Artist } : null;
-                        song.Album = track.Album is not null ? new() { Name = track.Album, ReleaseYear = track.Year, Artist = song.Artist } : null;
-                        _songs.Add(song);
+                            };
+
+                            song.BitRate = track.Bitrate;
+
+                            song.Picture = track.EmbeddedPictures?[0].PictureData;
+
+                            if (track.Lyrics.SynchronizedLyrics is not null)
+                            {
+                                track.Lyrics.SynchronizedLyrics.ToList().ForEach(lyric => song.SynchronizedLyrics.Add( new LyricPhraseModel { Text = lyric.Text, TimestampMs = lyric.TimestampMs }));
+                                //track.Lyrics.SynchronizedLyrics.ToList().ForEach(lyric => song.Lyrics.Add(lyric.ToString()));
+                            }
+                            else if(track.Lyrics.UnsynchronizedLyrics is not null)
+                            {
+                                song.UnSynchronizedLyrics = track.Lyrics.UnsynchronizedLyrics;
+                            }
+
+                            song.FileSize = new FileInfo(file).Length / 1024 / 1024 / 1024;
+
+                            song.Artist = (track.Artist is not null) ? new() { Name = track.Artist } : null;
+                            song.Album = track.Album is not null ? new() { Name = track.Album, ReleaseYear = track.Year, Artist = song.Artist } : null;
+                            if (File.Exists(Path.ChangeExtension(file, ".lrc")))
+                            {
+                                song.HasLyrics = true;
+                            }
+                            _songs.Add(song);
+                           // Debug.WriteLine(song.Title + " Added");
+                        }
                     }
                 }
-            }
 
-            string[] subFolders = Directory.GetDirectories(folder);
-            foreach (string subFolder in subFolders)
-            {
-                if (subFolder != "/storage/emulated/0/Music/.thumbnails" && subFolder is not null)
+                string[] subFolders = Directory.GetDirectories(folder);
+                List<Task> tasks = new List<Task>();
+                foreach (string subFolder in subFolders)
                 {
-                    ScanSongsAndFillList(subFolder);
+                    if (subFolder != "/storage/emulated/0/Music/.thumbnails" && subFolder is not null)
+                    {
+                       tasks.Add( ScanSongsAndFillList(subFolder));
+                    }
+
                 }
+                await Task.WhenAll(tasks);
             }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.Message);
-            throw;
-        }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message + "Mark 1");
+                //throw;
+            }
+        });
     }
 
     private bool AddSongsToDB(out List<SongModel> listOfDefaultSongs)
@@ -152,7 +180,7 @@ class MusicScanner
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            Debug.WriteLine(ex.Message + "Mark 2");
             listOfDefaultSongs = Enumerable.Empty<SongModel>().ToList();
             return false;
         }

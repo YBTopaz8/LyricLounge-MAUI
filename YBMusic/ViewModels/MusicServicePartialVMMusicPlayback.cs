@@ -71,6 +71,8 @@ public partial class MusicServiceVM : ObservableObject
             StartLyricsSync();
 
             UpdateCurrentlyPlayingSong(); //send message to update now playing page
+
+            Preferences.Set("LastPlayedSongID", song.Id);
         }
         catch (Exception ex)
         {
@@ -115,13 +117,11 @@ public partial class MusicServiceVM : ObservableObject
                     Lyrics = new();
                     ParseLrcFile(lyricsFilePath);
                 }
-                else
+
+                if (SelectedSong != PreviousSong)
                 {
-                    if (SelectedSong != PreviousSong)
-                    {
-                        Lyrics = new();
-                        ParseLrcFile(lyricsFilePath);
-                    }
+                    Lyrics = new();
+                    ParseLrcFile(lyricsFilePath);
                 }
                 var LSS = Observable.Interval(TimeSpan.FromMilliseconds(250)).Subscribe(_ => UpdateHighlightedlyrics());
                 LyricsSyncSubscription = LSS;

@@ -43,7 +43,7 @@ public class PlaylistManager : IPlaylistManager
         db = Realm.GetInstance(config);
     }
 
-    public bool CreateNewPlaylist(PlaylistModel playlist)
+    public async Task<bool> CreateNewPlaylist(PlaylistModel playlist)
     {
         try
         {
@@ -53,6 +53,16 @@ public class PlaylistManager : IPlaylistManager
             {
                 var pl = db.Write(() => db.Add(playlist));
                 return pl is not null;
+            }
+            else if(existingPlayList.Songs.Count == 0)
+            {
+                using var transaction = await db.BeginWriteAsync();
+                foreach (var song in playlist.Songs)
+                {
+                    existingPlayList.Songs.Add(song);
+                }
+                transaction.Commit();
+                return true;
             }
             else
             {

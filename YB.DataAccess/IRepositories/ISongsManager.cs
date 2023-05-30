@@ -10,9 +10,9 @@ namespace YB.DataAccess.IRepositories;
 public interface ISongsManager
 {
     List<SongModel> GetSongs();
-    bool AddSong(SongModel song);
+    Task<bool> AddSong(SongModel song);
     Task<bool> AddListOfSongsAsync(List<SongModel> song);
-    Task<SongModel> GetSongById(string id);
+    SongModel GetSongById(string SongId);
 
     void DropCollection();
 }

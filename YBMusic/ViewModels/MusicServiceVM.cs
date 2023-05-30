@@ -24,8 +24,11 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     IFolderPicker FolderPicker;
     ISongsManager SongManager;
     IAudioManager audioManager;
+    IAudioPlayer AudioPlayer { get; set; }
+    IDisposable LyricsSyncSubscription;
 
     FolderPickerResult result;
+    WeakReferenceMessenger messenger;
 
     System.Timers.Timer _progressTimer;
     public event Action SongStartedPlaying;
@@ -33,7 +36,6 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     [ObservableProperty]
     List<LyricsModel> lyrics;
 
-    WeakReferenceMessenger messenger;
     public MusicServiceVM(IAppSettingsManager settingsManager, IFolderPicker Picker, ISongsManager songsManager, IAudioManager audio, WeakReferenceMessenger wrm, IPlaylistManager plManager)
     {
         appSettingsManager = settingsManager;
@@ -48,6 +50,25 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
 
         messenger = wrm;
         messenger.Register(this);
+
+        string LastSongPlayedID = Preferences.Get("LastPlayedSongID", null);
+        if (LastSongPlayedID is not null)
+        {
+            SelectedSong = SongManager.GetSongById(LastSongPlayedID);
+            PreviousSong = SelectedSong;
+            SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
+        }
+
+
+        IsRefreshing = true;
+        IsSongPlaying = false;
+        InitializeSongsList();
+
+        if (Songs?.Count > 0)
+        {
+            TotalSongsCount = Songs.Count;
+        }
+        IsRefreshing = false;
     }
 
     [ObservableProperty]
@@ -63,7 +84,6 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     [ObservableProperty]
     SongModel selectedSong;
 
-    IAudioPlayer AudioPlayer { get; set; }
     [ObservableProperty]
     bool isSongPlaying;
 
@@ -79,11 +99,23 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
     [ObservableProperty]
     double songVolume;
 
-    IDisposable LyricsSyncSubscription;
 
-    void RefreshSongsList()
+
+    [RelayCommand]
+    public void RefreshSongsList()
     {
-        if (Songs is null)
+        IsRefreshing = true;
+        var defaultPlaylist = playlistManager.GetDefaultPlayList();
+        if (defaultPlaylist is not null)
+        {
+            Songs = new ObservableCollection<SongModel>(defaultPlaylist.Songs);
+        }
+        IsRefreshing = false;
+    }
+
+    void InitializeSongsList()
+    {
+        if (Songs is null || Songs.Count == 0)
         {
             var defaultPlaylist = playlistManager.GetDefaultPlayList();
             if (defaultPlaylist is not null)
@@ -92,25 +124,13 @@ public partial class MusicServiceVM : ObservableObject, IRecipient<RefreshSongsL
             }
         }
     }
+    [ObservableProperty]
+    bool isRefreshing;
+
 
     [RelayCommand]
     public void PageLoaded()
     {
-        IsSongPlaying = false;
-        RefreshSongsList();
-        //      var songsFromDB = SongManager.GetSongs();
-
-        //Songs = new ObservableCollection<SongModel>(songsFromDB);
-        if (Songs is not null)
-        {
-            SelectedSong = Songs.FirstOrDefault();
-            PreviousSong = SelectedSong;
-            if (SelectedSong is not null)
-            {
-                SongDuration = TimeSpan.FromMilliseconds(SelectedSong.DurationInMilliseconds);
-            }
-            TotalSongsCount = Songs.Count;
-        }
         HighlightedLyrics = new LyricsModel { Text = "No lyrics found" };
     }
 
